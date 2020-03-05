@@ -10,9 +10,6 @@ window.onload = function(){
       message.innerHTML = 'This browser doesn\'t support the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API" target="_blank">Web Bluetooth API</a> :(';
   }
 
-  let renderer, scene, camera;
-  var mesh;
-
   let fnirsData;
 
 	var initialised = false;
