@@ -77,13 +77,6 @@ class BlueberryWebBluetooth{
         console.log('getting service: ', controlService[0].name);
         return service.getCharacteristic(commandChar[0].uuid);
       })
-      // .then(characteristic => {
-      //   console.log('getting characteristic: ', commandChar[0].name);
-      //   // return new Buffer([0x11]); //start hex value to write to device
-      //   // The values passed in the buffer indicate that we want to receive all data without restriction;
-      //   let commandValue = new Uint8Array([0x11]);
-      //   characteristic.writeValue(commandValue);
-      // })
       .then(_ => {
         let fnirsService = requestedServices.filter((service) => {return service.uuid == services.fnirsService.uuid});
 
@@ -101,23 +94,10 @@ class BlueberryWebBluetooth{
     //byteLength of fNIRSdata
     let fNIRSData = event.target.value
     
-    //data from [2,3,4,5]
-    //let valueHBO = event.target.value.getInt32(2);
-
-    //or
-    var u8HBO = new Uint8Array([fNIRSData[6],fNIRSData[7],fNIRSData[8],fNIRSData[9]]); // original array
-    var u32bytesHBO = u8HBO.buffer.slice(-4); // last four bytes as a new `ArrayBuffer`
-
-    var countHBO = 0;
-    // assuming the array has at least four elements
-    for(var i = u8HBO.length - 4; i <= u8HBO.length - 1 ; i++)
-    {
-        countHBO = countHBO << 8 + u8HBO[i];
-    }
-
-    // var valueHBO = new Uint32Array(u32bytesHBO)[0] * 10000 + 20000;
-    var valueHBO = countHBO;
-    let valueHBR = 0; //event.target.value.getInt32(6);
+    //data from [2,3,4,5] for hbr and [6,7,8,9] for hbo
+    let valueHBO = event.target.value.getInt32(6);
+    let valueHBR = event.target.value.getInt32(2);
+    
 
     var data = {
       fNIRS: {
