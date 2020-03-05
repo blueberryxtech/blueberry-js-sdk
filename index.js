@@ -5,6 +5,8 @@ window.onload = function(){
   var time = 0;
   var data={dataset:[],labels:[]};                        //Empty Dataset for start
 
+  forwardData()
+
   if ( 'bluetooth' in navigator === false ) {
       button.style.display = 'none';
       message.innerHTML = 'This browser doesn\'t support the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API" target="_blank">Web Bluetooth API</a> :(';
@@ -66,4 +68,16 @@ window.onload = function(){
 
   }
 
+  function forwardData() {
+    console.log('forward data')
+    const socket = io('http://localhost:3002');
+    console.log(socket)
+
+    // socket.emit('hello', 'world');
+    const rawInt = 100
+
+    setInterval(() => {
+      socket.emit('chat_message', {data: rawInt});
+    }, 2000 )
+  }
 }
