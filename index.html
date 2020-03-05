@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Web Bluetooth</title>
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script>
+        function draw(data){
+            
+             config = {
+              type: 'line',
+              data: {
+                labels: data.labels,
+                datasets: [{
+                  label: 'fNIRS data',
+                  backgroundColor: 'blue',
+                  borderColor: 'blue',
+                  data: data.dataset,
+                  fill: false,
+                }]
+              },
+              options: {
+                
+                 animation: {
+                duration: 0
+            }, 
+                responsive: true,
+                title: {
+                  display: true,
+                  text: 'fNIRS Raw Data'
+                },
+                tooltips: {
+                  mode: 'index',
+                  intersect: false,
+                },
+                hover: {
+                  mode: 'nearest',
+                  intersect: true
+                },
+                scales: {
+                  xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Time'
+                    }
+                  }],
+                  yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Value'
+                    }
+                  }]
+                }
+              }
+            };
+        var ctx = document.getElementById('canvas').getContext('2d');
+        window.myLine = new Chart(ctx, config);
+        }
+      </script>
+  </head>
+  <body>
+    <div class="intro">
+      <h1>Blueberry Web Bluetooth</h1>
+      <button id="connect">
+        CONNECT BLUETOOTH DEVICE
+      </button>
+      <span id="message"></span>
+    </div>
+
+    <section class="main-container">
+      <div class="blueberry-data">
+        <ul>
+          <li class="data">hbo data: <span class="HBO-data"></span></li>
+          <li class="data">hbr data: <span class="HBR-data"></span></li>
+        </ul>
+      </div>
+
+      <div class="blueberry-chart">
+
+        <div class="chart-container" style="position: relative; width:75vw; margin: 20px;">
+          <div style="width:1200px;height:400px;">
+          <canvas id="canvas" ></canvas>
+            <!-- <canvas id="myChart"></canvas> -->
+        </div>
+      
+      </div>
+
+    </section>
+
+    <script type="text/javascript" src="blueberry-web-bluetooth.js"></script>
+    <script type="text/javascript" src="./index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/min/moment.min.js"></script>
+  </body>
+</html>
