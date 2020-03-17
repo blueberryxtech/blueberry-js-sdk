@@ -77,6 +77,11 @@ class BlueberryWebBluetooth{
         console.log('getting service: ', controlService[0].name);
         return service.getCharacteristic(commandChar[0].uuid);
       })
+      .then(characteristic => {
+        console.log('getting characteristic: ', commandChar[0].name);
+        let commandValue = new Uint8Array([0x20]);
+        characteristic.writeValue(commandValue);
+      })
       .then(_ => {
         let fnirsService = requestedServices.filter((service) => {return service.uuid == services.fnirsService.uuid});
 
@@ -88,6 +93,31 @@ class BlueberryWebBluetooth{
       .catch(error =>{
         console.log('error: ', error);
       })
+  }
+
+    //     RGB Controller
+    //     binary to hex - 1 byte format -  1RGB
+    //
+    //     1100 - RED ON - 0xC0
+    //     1010 - GREEN ON - 0xA0
+    //     1001 - BLUE ON - 0x09
+    //     1000 - OFF - 0x08
+    //     1111 - ALL ON - WHITE - 0x0F
+    //     1110 - RED, GREEN ON - 0x0E - YELLOW
+    //     1101 - RED, BLUE ON - 0x0D - PURPLE
+    //     1011 - BLUE, GREEN ON - 0x0B - CYAN
+
+    //  0x20 - lightess LCD
+    //  0x40 - step 1 LCD
+    //  0x60 - step 2 LCD
+    //  0x80 - step 3 LCD
+    //  0x99 - darkest LCD - step 4
+
+  ctrlLCD(hexValue, characteristics, requestedCharacteristics){
+      //console.log('getting characteristic: ', commandChar[0].name);
+      let commandChar = characteristics.commandCharacteristic.uuid;
+      let commandValue = new Uint8Array([hexValue]);
+      commandChar.writeValue(commandValue);
   }
 
   handlefNIRSDataChanged(event){

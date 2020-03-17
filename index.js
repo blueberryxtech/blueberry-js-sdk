@@ -1,9 +1,12 @@
 window.onload = function(){
-  let button = document.getElementById("connect");
+  let buttonConnect = document.getElementById("connect");
+  let buttonTintLvl1 = document.getElementById("ctrlLCD1");
+  let buttonTintLvl5 = document.getElementById("ctrlLCD5");
   let message = document.getElementById("message");
   let chart = document.getElementById("chart");
   var time = 0;
   var data={dataset:[],labels:[]};                        //Empty Dataset for start
+  var blueberryController = new BlueberryWebBluetooth("blubry");
 
   if ( 'bluetooth' in navigator === false ) {
       button.style.display = 'none';
@@ -15,9 +18,8 @@ window.onload = function(){
 	var initialised = false;
 	var timeout = null;
 
-  button.onclick = function(e){
+  buttonConnect.onclick = function(e){
     //need to put exact device name here
-    var blueberryController = new BlueberryWebBluetooth("blubry");
     blueberryController.connect();
 
     blueberryController.onStateChange(function(state){
@@ -27,6 +29,20 @@ window.onload = function(){
       displayData();
 
     });
+  }
+
+  buttonTintLvl1.onclick = function(e){
+
+    blueberryController.ctrlLCD(0x20);
+    console.log('tint change lvl 1');
+
+  }
+
+  buttonTintLvl5.onclick = function(e){
+
+    blueberryController.ctrlLCD(0x99);
+    console.log('tint change lvl 5');
+
   }
 
   function displayData(){
