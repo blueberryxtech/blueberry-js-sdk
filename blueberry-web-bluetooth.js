@@ -98,8 +98,8 @@ class BlueberryWebBluetooth{
     //     RGB Controller
     //     binary to hex - 1 byte format -  1RGB
     //
-    //     1100 - RED ON - 0xC0
-    //     1010 - GREEN ON - 0xA0
+    //     1100 - RED ON - 0xC0 - 0x0C
+    //     1010 - GREEN ON - 0xA0 - 0x0A
     //     1001 - BLUE ON - 0x09
     //     1000 - OFF - 0x08
     //     1111 - ALL ON - WHITE - 0x0F

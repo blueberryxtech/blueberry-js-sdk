@@ -6,7 +6,7 @@ window.onload = function(){
   let chart = document.getElementById("chart");
   var time = 0;
   var data={dataset:[],labels:[]};                        //Empty Dataset for start
-  var blueberryController = new BlueberryWebBluetooth("blubry");
+  var blueberryController = new BlueberryWebBluetooth("blueberry-70");
 
   if ( 'bluetooth' in navigator === false ) {
       button.style.display = 'none';
