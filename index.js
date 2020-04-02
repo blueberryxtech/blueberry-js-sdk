@@ -1,11 +1,16 @@
+var socket;
+
 window.onload = function(){
+  socket = io('http://localhost:3002');
+
   let button = document.getElementById("connect");
+  let socketButton = document.getElementById("socket");
   let message = document.getElementById("message");
   let chart = document.getElementById("chart");
   var time = 0;
   var data={dataset:[],labels:[]};                        //Empty Dataset for start
 
-  forwardData()
+  // forwardData()
 
   if ( 'bluetooth' in navigator === false ) {
       button.style.display = 'none';
@@ -27,8 +32,26 @@ window.onload = function(){
       fNIRSData = state.fNIRS;
       
       displayData();
+      forwardData(fNIRSData.HBO)
 
     });
+  }
+
+  socketButton.onclick = function(e){
+    socket = io('http://localhost:3002');
+    console.log(socket)
+
+    // //need to put exact device name here
+    // var blueberryController = new BlueberryWebBluetooth("blubry");
+    // blueberryController.connect();
+
+    // blueberryController.onStateChange(function(state){
+
+    //   fNIRSData = state.fNIRS;
+      
+    //   displayData();
+
+    // });
   }
 
   function displayData(){
@@ -38,43 +61,44 @@ window.onload = function(){
       var hBODiv = document.getElementsByClassName('HBO-data')[0];
       hBODiv.innerHTML = fNIRSData.HBO;
 
+
       // var hBRDiv = document.getElementsByClassName('HBR-data')[0];
       // hBRDiv.innerHTML = fNIRSData.HBR;
 
-      //update chart
-      timer = 20;                                         //Refresh time basely 20ms, 50Hz
-      secondsTillReset  = 10;
-      date  = new Date();
-      hour  = date.getHours();  if(hour<10){  hour= '0'+hour; }
-      minutes = date.getMinutes();  if(minutes<10){ minutes=  '0'+minutes;  }
-      seconds = date.getSeconds();  if(seconds<10){ seconds=  '0'+seconds;  }
-      time  = hour+':'+minutes+':'+seconds;                             //Cheate H:i:s
+      // //update chart
+      // timer = 20;                                         //Refresh time basely 20ms, 50Hz
+      // secondsTillReset  = 10;
+      // date  = new Date();
+      // hour  = date.getHours();  if(hour<10){  hour= '0'+hour; }
+      // minutes = date.getMinutes();  if(minutes<10){ minutes=  '0'+minutes;  }
+      // seconds = date.getSeconds();  if(seconds<10){ seconds=  '0'+seconds;  }
+      // time  = hour+':'+minutes+':'+seconds;                             //Cheate H:i:s
 
-      if (data.dataset.length != 100) {
-        data.dataset.push(fNIRSData.HBO);           //Then remove the first and add a new
-        data.labels.push(time);
-      } else {
-        data.dataset.shift();
-        data.labels.shift(); 
-        data.dataset.push(fNIRSData.HBO);           //Then remove the first and add a new
-        data.labels.push(time);
-      }
-      draw(data);
+      // if (data.dataset.length != 100) {
+      //   data.dataset.push(fNIRSData.HBO);           //Then remove the first and add a new
+      //   data.labels.push(time);
+      // } else {
+      //   data.dataset.shift();
+      //   data.labels.shift(); 
+      //   data.dataset.push(fNIRSData.HBO);           //Then remove the first and add a new
+      //   data.labels.push(time);
+      // }
+      // draw(data);
       
     }
 
   }
 
-  function forwardData() {
-    console.log('forward data')
-    const socket = io('http://localhost:3002');
-    console.log(socket)
+  function forwardData(data) {
+    console.log(`forward data: ${data}`)
+    // console.log(socket)
 
     // socket.emit('hello', 'world');
-    const rawInt = 100
+    // const rawInt = 100
+    socket.emit('chat_message', {data: data});
 
-    setInterval(() => {
-      socket.emit('chat_message', {data: rawInt});
-    }, 2000 )
+    // setInterval(() => {
+    //   console.log('sending data')
+    // }, 2000 )
   }
 }
