@@ -1,79 +1,192 @@
 window.onload = function(){
-  let buttonConnect = document.getElementById("connect");
+  let buttonConnectA = document.getElementById("connectA");
+  let buttonConnectB = document.getElementById("connectB");
   let buttonTintLvl1 = document.getElementById("ctrlLCD1");
   let buttonTintLvl5 = document.getElementById("ctrlLCD5");
+  let buttonStartClass = document.getElementById("startClassification");
+  let buttonStopClass = document.getElementById("stopClassification");
   let message = document.getElementById("message");
-  let chart = document.getElementById("chart");
-  var time = 0;
-  var data={dataset:[],labels:[]};                        //Empty Dataset for start
-  var blueberryController = new BlueberryWebBluetooth("blueberry-70");
+  let chartA = document.getElementById("chartA");
+  let chartB = document.getElementById("chartB");
+
+  var timeA = 0;
+  var timeB = 0;
+  var lastDataA = 0.0;
+  var lastDataB = 0.0;
+  var dataA={labels: [],dataset: []};
+  var dataB={labels: [],dataset: []};
+                           //Empty Dataset for start
+  var blueberryControllerA = new BlueberryWebBluetoothA("blueberry-70");
+  var blueberryControllerB = new BlueberryWebBluetoothB("blueberry-6c");
 
   if ( 'bluetooth' in navigator === false ) {
       button.style.display = 'none';
       message.innerHTML = 'This browser doesn\'t support the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API" target="_blank">Web Bluetooth API</a> :(';
   }
 
-  let fnirsData;
+  let fnirsDataA;
+  let fnirsDataB;
 
 	var initialised = false;
 	var timeout = null;
+  var dataCountA = 0;
+  var dataCountB = 0;
 
-  buttonConnect.onclick = function(e){
+  buttonConnectA.onclick = function(e){
     //need to put exact device name here
-    blueberryController.connect();
+    blueberryControllerA.connect();
 
-    blueberryController.onStateChange(function(state){
+    blueberryControllerA.onStateChange(function(state){
 
-      fNIRSData = state.fNIRS;
+      fNIRSDataA = stateA.fNIRS;
       
-      displayData();
+      displayDataA();
+
+    });
+  }
+
+  buttonConnectB.onclick = function(e){
+    //need to put exact device name here
+    blueberryControllerB.connect();
+
+    blueberryControllerB.onStateChange(function(state){
+
+      fNIRSDataB = stateB.fNIRS;
+      
+      displayDataB();
 
     });
   }
 
   buttonTintLvl1.onclick = function(e){
 
-    blueberryController.ctrlLCD(0x20);
+    blueberryController.ctrlCommand(0x20);
     console.log('tint change lvl 1');
 
   }
 
   buttonTintLvl5.onclick = function(e){
 
-    blueberryController.ctrlLCD(0x99);
+    blueberryController.ctrlCommand(0x99);
     console.log('tint change lvl 5');
 
   }
 
-  function displayData(){
+  buttonStartClass.onclick = function(e){
+
+    blueberryController.ctrlCommand(0xC1);
+
+  }
+
+  buttonStopClass.onclick = function(e){
+
+    blueberryController.ctrlCommand(0xC0);
+
+  }
+
+  function displayDataA(){
     
-    if(fNIRSData){
+    if(fNIRSDataA){
 
-      var hBODiv = document.getElementsByClassName('HBO-data')[0];
-      hBODiv.innerHTML = fNIRSData.HBO;
+      // HBOlong: valueHBOlong,
+      // HBOshort: valueHBOshort,
+      // HBTlong: valueHBTlong,
+      // HBTshort: valueHBTshort
+      dataCountA += 1;
 
-      // var hBRDiv = document.getElementsByClassName('HBR-data')[0];
-      // hBRDiv.innerHTML = fNIRSData.HBR;
+      //update 2 times per second
+      if (dataCountA % 50 == 0){
+          var hemo1Div = document.getElementsByClassName('hemo1-data')[0];
+          hemo1Div.innerHTML = fNIRSData.HBOlong;
 
-      //update chart
-      timer = 20;                                         //Refresh time basely 20ms, 50Hz
-      secondsTillReset  = 10;
-      date  = new Date();
-      hour  = date.getHours();  if(hour<10){  hour= '0'+hour; }
-      minutes = date.getMinutes();  if(minutes<10){ minutes=  '0'+minutes;  }
-      seconds = date.getSeconds();  if(seconds<10){ seconds=  '0'+seconds;  }
-      time  = hour+':'+minutes+':'+seconds;                             //Cheate H:i:s
-
-      if (data.dataset.length != 100) {
-        data.dataset.push(fNIRSData.HBO);           //Then remove the first and add a new
-        data.labels.push(time);
-      } else {
-        data.dataset.shift();
-        data.labels.shift(); 
-        data.dataset.push(fNIRSData.HBO);           //Then remove the first and add a new
-        data.labels.push(time);
+          var MentalLoadDiv = document.getElementsByClassName('mental-load-data')[0];
+          MentalLoadDiv.innerHTML = fNIRSData.MentalLoad;
       }
-      draw(data);
+
+      //update 5 times a second from 100Hz Sample Rate
+      if (dataCountA % 2 == 0){
+
+        //console.log('data plot');
+        //if (fNIRSData.HBOlong > 10){
+
+          //update chart
+          var date = new Date();
+          let hour  = date.getHours();  if(hour<10){  hour= '0'+hour; }
+          let minutes = date.getMinutes();  if(minutes<10){ minutes=  '0'+minutes;  }
+          let seconds = date.getSeconds();  if(seconds<10){ seconds=  '0'+seconds;  }
+          timeA  = hour+':'+minutes+':'+seconds;                             //Cheate H:i:s
+
+          if (Math.abs(lastDataA - fNIRSDataA.HBOlong) <= 2000){
+
+            if (dataA.dataset.length != 100) {
+              dataA.dataset.push(fNIRSDataA.HBOlong);           //Then remove the first and add a new
+              //data.dataset[1].push(fNIRSData.HBTlong);
+              dataA.labels.push(timeA);
+            } else {
+              dataA.dataset.shift();
+              //data.dataset[1].shift();
+              dataA.labels.shift(); 
+              dataA.dataset.push(fNIRSDataA.HBOlong);           //Then remove the first and add a new
+              //data.dataset[1].push(fNIRSData.HBTlong);
+              dataA.labels.push(timeA);
+            }
+          }
+
+          lastDataA = fNIRSDataA.HBOlong
+
+          drawA(dataA);
+        //}
+      }
+      
+    }
+
+  }
+
+  function displayDataB(){
+    
+    if(fNIRSDataB){
+
+      // HBOlong: valueHBOlong,
+      // HBOshort: valueHBOshort,
+      // HBTlong: valueHBTlong,
+      // HBTshort: valueHBTshort
+      dataCountB += 1;
+
+      //update 5 times a second from 100Hz Sample Rate
+      if (dataCountB % 2 == 0){
+
+        //console.log('data plot');
+        //if (fNIRSData.HBOlong > 10){
+
+          //update chart
+          var date = new Date();
+          let hour  = date.getHours();  if(hour<10){  hour= '0'+hour; }
+          let minutes = date.getMinutes();  if(minutes<10){ minutes=  '0'+minutes;  }
+          let seconds = date.getSeconds();  if(seconds<10){ seconds=  '0'+seconds;  }
+          timeB  = hour+':'+minutes+':'+seconds;                             //Cheate H:i:s
+
+          if (Math.abs(lastDataB - fNIRSDataB.HBOlong) <= 2000){
+
+            if (dataB.dataset.length != 100) {
+              dataB.dataset.push(fNIRSDataB.HBOlong);           //Then remove the first and add a new
+              //data.dataset[1].push(fNIRSData.HBTlong);
+              dataB.labels.push(timeB);
+            } else {
+              dataB.dataset.shift();
+              //data.dataset[1].shift();
+              dataB.labels.shift(); 
+              dataB.dataset.push(fNIRSDataB.HBOlong);           //Then remove the first and add a new
+              //data.dataset[1].push(fNIRSData.HBTlong);
+              dataB.labels.push(timeB);
+            }
+
+          }
+
+          lastDataB = fNIRSDataB.HBOlong
+
+          drawB(dataB);
+        //}
+      }
       
     }
 
