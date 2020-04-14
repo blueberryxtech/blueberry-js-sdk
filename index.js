@@ -94,14 +94,14 @@ window.onload = function(){
       // HBTshort: valueHBTshort
       dataCountA += 1;
 
-      //update 2 times per second
-      if (dataCountA % 50 == 0){
-          var hemo1Div = document.getElementsByClassName('hemo1-data')[0];
-          hemo1Div.innerHTML = fNIRSData.HBOlong;
+      // //update 2 times per second
+      // if (dataCountA % 50 == 0){
+      //     var hemo1Div = document.getElementsByClassName('hemo1-data')[0];
+      //     hemo1Div.innerHTML = fNIRSData.HBOlong;
 
-          var MentalLoadDiv = document.getElementsByClassName('mental-load-data')[0];
-          MentalLoadDiv.innerHTML = fNIRSData.MentalLoad;
-      }
+      //     var MentalLoadDiv = document.getElementsByClassName('mental-load-data')[0];
+      //     MentalLoadDiv.innerHTML = fNIRSData.MentalLoad;
+      // }
 
       //update 5 times a second from 100Hz Sample Rate
       if (dataCountA % 2 == 0){
@@ -135,6 +135,7 @@ window.onload = function(){
           lastDataA = fNIRSDataA.HBOlong
 
           drawA(dataA);
+          saveDataToFilesystemA(dataA); // This should be called somewhere else, not during chart updates
         //}
       }
       
@@ -185,6 +186,7 @@ window.onload = function(){
           lastDataB = fNIRSDataB.HBOlong
 
           drawB(dataB);
+          saveDataToFilesystemB(dataB); // This should be called somewhere else, not during chart updates
         //}
       }
       
