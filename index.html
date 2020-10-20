@@ -8,6 +8,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <script type="text/javascript" src="./libraries/moment.js"></script>
     <script type="text/javascript" src="./libraries/chartjs-plugin-streaming.js"></script>
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
+    <script type="text/javascript" src="./libraries/html2canvas.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script>
         function drawA(data){
              config = {
@@ -15,7 +18,7 @@
               data: {
                 labels: data.labels,
                 datasets: [{
-                  label: 'HbO',
+                  label: 'L1-PATH',
                   backgroundColor: 'blue',
                   borderColor: 'blue',
                   data: data.dataset,
@@ -66,9 +69,9 @@
               data: {
                 labels: data.labels,
                 datasets: [{
-                  label: 'HbO',
-                  backgroundColor: 'blue',
-                  borderColor: 'blue',
+                  label: 'L2-PATH',
+                  backgroundColor: 'green',
+                  borderColor: 'green',
                   data: data.dataset,
                   fill: false,
                 }]
@@ -111,48 +114,79 @@
         var ctxB = document.getElementById('chartB').getContext('2d');
         window.myLineB = new Chart(ctxB, config);
         }
+        function drawC(data){
+             config = {
+              type: 'line',
+              data: {
+                labels: data.labels,
+                datasets: [{
+                  label: 'L3-PATH',
+                  backgroundColor: 'red',
+                  borderColor: 'red',
+                  data: data.dataset,
+                  fill: false,
+                }]
+              },
+              options: {
+                animation: {
+                duration: 0
+            }, 
+                responsive: true,
+                title: {
+                  display: true,
+                  text: 'Real-time Data'
+                },
+                tooltips: {
+                  mode: 'index',
+                  intersect: false,
+                },
+                hover: {
+                  mode: 'nearest',
+                  intersect: true
+                },
+                scales: {
+                  xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Time'
+                    }
+                  }],
+                  yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Value'
+                    }
+                  }]
+                }
+              }
+            };
+        var ctxC = document.getElementById('chartC').getContext('2d');
+        window.myLineC = new Chart(ctxC, config);
+        }
       </script>
   </head>
   <body>
     <div class="intro">
-      <h1>Blueberry Web Bluetooth</h1>
+      <h1>Blueberry</h1>
+    
       <button id="connectA">
-        CONNECT BLUETOOTH DEVICE A
+        CONNECT BLUEBERRY
       </button>
-      <button id="connectB">
+      <!-- <button id="connectB">
         CONNECT BLUETOOTH DEVICE B
       </button>
-      <button id="ctrlLCD1">
-        TINT GLASSES lvl 1
-      </button>
-      <button id="ctrlLCD5">
-        TINT GLASSES lvl 5
-      </button>
-      <button id="startClassification">
-        Start Classification
-      </button>
-      <button id="stopClassification">
-        Stop Classification
-      </button>
-      <button id="buttonsavedata">
-        SAVE DATA TO LOCAL FILESYSTEM
-      </button>
+      -->
       <span id="message"></span>
     </div>
 
     <section class="main-container">
-      <div class="blueberry-data">
-        <ul>
-          <li class="data">hemo1: <span class="hemo1-data"></span></li>
-          <li class="data">hemo2: <span class="hemo2-data"></span></li>
-          <li class="data">mental load: <span class="mental-load-data"></span></li>
-        </ul>
-      </div>
 
       <div class="blueberry-chart-A">
 
         <div class="chart-container" style="position: relative; width:75vw; margin: 20px;">
-          <div style="width:1200px;height:400px;">
+          <div style="width:1200px;height:200px;">
           <canvas id="chartA" ></canvas>
             <!-- <canvas id="myChart"></canvas> -->
         </div>
@@ -162,8 +196,18 @@
       <div class="blueberry-chart-B">
 
         <div class="chart-container" style="position: relative; width:75vw; margin: 20px;">
-          <div style="width:1200px;height:400px;">
+          <div style="width:1200px;height:200px;">
           <canvas id="chartB" ></canvas>
+            <!-- <canvas id="myChart"></canvas> -->
+        </div>
+      
+      </div>
+
+      <div class="blueberry-chart-C">
+
+        <div class="chart-container" style="position: relative; width:75vw; margin: 20px;">
+          <div style="width:1200px;height:200px;">
+          <canvas id="chartC" ></canvas>
             <!-- <canvas id="myChart"></canvas> -->
         </div>
       
@@ -173,8 +217,9 @@
 
     <script type="text/javascript" src="blueberry-web-bluetooth.js"></script>
     <script type="text/javascript" src="./index.js"></script>
-    <script type="text/javascript" src="./filesystem.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/json2csv@4.5.4"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/min/moment.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
   </body>
 </html>

@@ -1,23 +1,25 @@
 window.onload = function(){
   let buttonConnectA = document.getElementById("connectA");
-  let buttonConnectB = document.getElementById("connectB");
-  let buttonTintLvl1 = document.getElementById("ctrlLCD1");
-  let buttonTintLvl5 = document.getElementById("ctrlLCD5");
-  let buttonStartClass = document.getElementById("startClassification");
-  let buttonStopClass = document.getElementById("stopClassification");
   let message = document.getElementById("message");
   let chartA = document.getElementById("chartA");
   let chartB = document.getElementById("chartB");
+  let chartC = document.getElementById("chartC");
 
   var timeA = 0;
   var timeB = 0;
+  var timeC = 0;
   var lastDataA = 0.0;
   var lastDataB = 0.0;
+  var lastDataC = 0.0;
+  var l1PathMA = [];
+  var l2PathMA = [];
+  var l3PathMA = [];
   var dataA={labels: [],dataset: []};
   var dataB={labels: [],dataset: []};
-                           //Empty Dataset for start
-  var blueberryControllerA = new BlueberryWebBluetoothA("blueberry-70");
-  var blueberryControllerB = new BlueberryWebBluetoothB("blueberry-6c");
+  var dataC={labels: [],dataset: []};
+  
+  //Empty Dataset for start
+  var blueberryControllerA = new BlueberryWebBluetoothA("blueberry-ac");
 
   if ( 'bluetooth' in navigator === false ) {
       button.style.display = 'none';
@@ -25,12 +27,12 @@ window.onload = function(){
   }
 
   let fnirsDataA;
-  let fnirsDataB;
 
 	var initialised = false;
 	var timeout = null;
   var dataCountA = 0;
   var dataCountB = 0;
+  var dataCountC = 0;
 
   buttonConnectA.onclick = function(e){
     //need to put exact device name here
@@ -45,42 +47,19 @@ window.onload = function(){
     });
   }
 
-  buttonConnectB.onclick = function(e){
-    //need to put exact device name here
-    blueberryControllerB.connect();
+  function average(data){
+    var totalSum = 0.0
+    var totalCount = data.length
+    var average = 0.0
 
-    blueberryControllerB.onStateChange(function(state){
+    for (var i = 0; i < totalCount - 1; i++) {
+     totalSum += data[i]
+     // more statements
+    } 
 
-      fNIRSDataB = stateB.fNIRS;
-      
-      displayDataB();
+    average = totalSum/totalCount;
 
-    });
-  }
-
-  buttonTintLvl1.onclick = function(e){
-
-    blueberryController.ctrlCommand(0x20);
-    console.log('tint change lvl 1');
-
-  }
-
-  buttonTintLvl5.onclick = function(e){
-
-    blueberryController.ctrlCommand(0x99);
-    console.log('tint change lvl 5');
-
-  }
-
-  buttonStartClass.onclick = function(e){
-
-    blueberryController.ctrlCommand(0xC1);
-
-  }
-
-  buttonStopClass.onclick = function(e){
-
-    blueberryController.ctrlCommand(0xC0);
+    return average;
 
   }
 
@@ -88,107 +67,76 @@ window.onload = function(){
     
     if(fNIRSDataA){
 
-      // HBOlong: valueHBOlong,
-      // HBOshort: valueHBOshort,
-      // HBTlong: valueHBTlong,
-      // HBTshort: valueHBTshort
       dataCountA += 1;
 
-      // //update 2 times per second
-      // if (dataCountA % 50 == 0){
-      //     var hemo1Div = document.getElementsByClassName('hemo1-data')[0];
-      //     hemo1Div.innerHTML = fNIRSData.HBOlong;
-
-      //     var MentalLoadDiv = document.getElementsByClassName('mental-load-data')[0];
-      //     MentalLoadDiv.innerHTML = fNIRSData.MentalLoad;
-      // }
-
       //update 5 times a second from 100Hz Sample Rate
-      if (dataCountA % 2 == 0){
+      if (dataCountA % 1 == 0){
 
-        //console.log('data plot');
-        //if (fNIRSData.HBOlong > 10){
+          //calculate moving average
+          if (l1PathMA.length != 10) {
+            l1PathMA.push(fNIRSDataA.L1);
+            l2PathMA.push(fNIRSDataA.L2);
+            l3PathMA.push(fNIRSDataA.L3);
+          } else {
+            l1PathMA.shift();
+            l2PathMA.shift();
+            l3PathMA.shift();
+            l1PathMA.push(fNIRSDataA.L1);
+            l2PathMA.push(fNIRSDataA.L2);
+            l3PathMA.push(fNIRSDataA.L3);
+          }
+
+          let l1PathMAVal = average(l1PathMA);
+          let l2PathMAVal = average(l2PathMA);
+          let l3PathMAVal = average(l3PathMA);
 
           //update chart
           var date = new Date();
           let hour  = date.getHours();  if(hour<10){  hour= '0'+hour; }
           let minutes = date.getMinutes();  if(minutes<10){ minutes=  '0'+minutes;  }
           let seconds = date.getSeconds();  if(seconds<10){ seconds=  '0'+seconds;  }
-          timeA  = hour+':'+minutes+':'+seconds;                             //Cheate H:i:s
+          timeA  = hour+':'+minutes+':'+seconds;            // H:m:s
 
-          if (Math.abs(lastDataA - fNIRSDataA.HBOlong) <= 2000){
+          // if (Math.abs(lastDataA - fNIRSDataA.HBT) <= 1000){
 
             if (dataA.dataset.length != 100) {
-              dataA.dataset.push(fNIRSDataA.HBOlong);           //Then remove the first and add a new
-              //data.dataset[1].push(fNIRSData.HBTlong);
+              dataA.dataset.push(l1PathMAVal);           //Then remove the first and add a new
+              dataB.dataset.push(l2PathMAVal);           //Then remove the first and add a new
+              dataC.dataset.push(l3PathMAVal);           //Then remove the first and add a new
+              
               dataA.labels.push(timeA);
+              dataB.labels.push(timeA);
+              dataC.labels.push(timeA);
             } else {
+
               dataA.dataset.shift();
+              dataB.dataset.shift();
+              dataC.dataset.shift();
               //data.dataset[1].shift();
               dataA.labels.shift(); 
-              dataA.dataset.push(fNIRSDataA.HBOlong);           //Then remove the first and add a new
-              //data.dataset[1].push(fNIRSData.HBTlong);
-              dataA.labels.push(timeA);
-            }
-          }
-
-          lastDataA = fNIRSDataA.HBOlong
-
-          drawA(dataA);
-          saveDataToFilesystemA(dataA); // This should be called somewhere else, not during chart updates
-        //}
-      }
-      
-    }
-
-  }
-
-  function displayDataB(){
-    
-    if(fNIRSDataB){
-
-      // HBOlong: valueHBOlong,
-      // HBOshort: valueHBOshort,
-      // HBTlong: valueHBTlong,
-      // HBTshort: valueHBTshort
-      dataCountB += 1;
-
-      //update 5 times a second from 100Hz Sample Rate
-      if (dataCountB % 2 == 0){
-
-        //console.log('data plot');
-        //if (fNIRSData.HBOlong > 10){
-
-          //update chart
-          var date = new Date();
-          let hour  = date.getHours();  if(hour<10){  hour= '0'+hour; }
-          let minutes = date.getMinutes();  if(minutes<10){ minutes=  '0'+minutes;  }
-          let seconds = date.getSeconds();  if(seconds<10){ seconds=  '0'+seconds;  }
-          timeB  = hour+':'+minutes+':'+seconds;                             //Cheate H:i:s
-
-          if (Math.abs(lastDataB - fNIRSDataB.HBOlong) <= 2000){
-
-            if (dataB.dataset.length != 100) {
-              dataB.dataset.push(fNIRSDataB.HBOlong);           //Then remove the first and add a new
-              //data.dataset[1].push(fNIRSData.HBTlong);
-              dataB.labels.push(timeB);
-            } else {
-              dataB.dataset.shift();
-              //data.dataset[1].shift();
               dataB.labels.shift(); 
-              dataB.dataset.push(fNIRSDataB.HBOlong);           //Then remove the first and add a new
-              //data.dataset[1].push(fNIRSData.HBTlong);
-              dataB.labels.push(timeB);
+              dataC.labels.shift(); 
+
+              dataA.dataset.push(l1PathMAVal);           //Then remove the first and add a new
+              dataB.dataset.push(l2PathMAVal);          //Then remove the first and add a new
+              dataC.dataset.push(l3PathMAVal);           //Then remove the first and add a new
+
+              dataA.labels.push(timeA);
+              dataB.labels.push(timeA);
+              dataC.labels.push(timeA);
             }
 
-          }
+            if (dataCountA % 50 ==0){
+              drawA(dataA);
+              drawB(dataB);
+              drawC(dataC);
+              dataCountA = 0
+            }          
+          // } 
 
-          lastDataB = fNIRSDataB.HBOlong
-
-          drawB(dataB);
-          saveDataToFilesystemB(dataB); // This should be called somewhere else, not during chart updates
-        //}
       }
+
+      
       
     }
 
