@@ -19,7 +19,7 @@ window.onload = function(){
   var dataC={labels: [],dataset: []};
   
   //Empty Dataset for start
-  var blueberryControllerA = new BlueberryWebBluetoothA("blueberry-ac");
+  var blueberryControllerA = new BlueberryWebBluetoothA("blueberry-0b08");
 
   if ( 'bluetooth' in navigator === false ) {
       button.style.display = 'none';
