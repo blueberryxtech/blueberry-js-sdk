@@ -17,7 +17,7 @@ const characteristics = {
   },
   fnirsCharacteristic: {
     name: 'read fnirs data characteristic',
-    uuid: '4f4e4d4c-4b4a-4948-4746-454443424140'
+    uuid: '3f3e3d3c-3b3a-3938-3736-353433323130'
   }
 }
 
@@ -127,9 +127,9 @@ class BlueberryWebBluetoothA{
     let fNIRSData = event.target.value
     console.log(fNIRSData);
     
-    let valueHemo1 = event.target.value.getInt32(0);    
-    let valueHemo2 = event.target.value.getInt32(4);
-    let valueHemo3 = event.target.value.getInt32(8);
+    let valueHemo1 = event.target.value.getInt32(2);    
+    let valueHemo2 = event.target.value.getInt32(6);
+    let valueHemo3 = event.target.value.getInt32(10);
 
     var data = {
       fNIRS: {
